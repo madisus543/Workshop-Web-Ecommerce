@@ -1,9 +1,25 @@
 var express = require('express');
 var router = express.Router();
-var con = require('./connect');
-var jwt = require('jsonwebtoken');
+// import connect
+let con = require('./connect');
 
+// import jsonwebtoken
+let jwt = require('jsonwebtoken');
 let secretkey = 'P@ssw0rd';
+
+//import express-session
+let session = require('express-session');
+router.use(session({
+  secret: 'session',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 100 * 60 * 24 * 30  }
+}));
+
+router.use((req,res,next) => {
+  res.locals.session = req.session;
+  next();
+})
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -29,12 +45,33 @@ router.post('/login', (req,res) => {
       let name = result[0].name;
       let token = jwt.sign({id: id, name: name}, secretkey);
 
-      res.send(token);
+      // เก็บ token กับ name ไว้ใน session
+      req.session.token = token;
+      req.session.name = name;
+
+      res.redirect('/home');
     }
     else {
       res.send('username or password invalid!!');
     }
   })
+})
+
+function isLogin(req,res,next) {
+  if (req.session.token != undefined) {
+    next();
+  } else {
+    res.redirect('login');
+  }
+}
+
+router.get('/home',isLogin, (req,res)=> {
+  res.render('home');
+})
+
+router.get('/logout', isLogin, (req,res)=> {
+  req.session.destroy();
+  res.redirect('/login')
 })
 
 module.exports = router;
