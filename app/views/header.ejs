@@ -24,6 +24,13 @@
     <div class="mb-4">
       <div class="h4 float-start">E-Commerce Back Office</div>
       <div class="float-end">
+        User: <%= session.name %>
+        <a class="btn btn-info" href="/changeProfile">
+          <span class="material-symbols-outlined material-icons">
+            settings
+            </span>
+            แก้ไขข้อมูล
+        </a>
         <a class="btn btn-danger" href="/logout" onclick="return confirm('Are you sure?')">
           <span class="material-symbols-outlined material-icons">
             logout
@@ -34,30 +41,45 @@
       <div class="clearfix"></div>
       
       <nav class="navbar navbar-expand-lg navbar-light bg-light mt-2">
-        <a class="navbar-brand" href="/home">Home</a>
+        <a class="navbar-brand" href="/home">
+          <span class="material-symbols-outlined material-icons">
+            home
+            </span>
+          Home
+        </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
           <ul class="navbar-nav">
             <li class="nav-item active">
-              <a class="nav-link" href="#">ประเภทสินค้า <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="#">
+                <span class="material-symbols-outlined material-icons">
+                  category
+                  </span>
+                ประเภทสินค้า</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">สินค้า</a>
+              <a class="nav-link" href="#">
+                <span class="material-symbols-outlined material-icons">
+                  storefront
+                  </span>
+                สินค้า</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">ยอดสั่งซื้อ</a>
+              <a class="nav-link" href="#">
+                <span class="material-symbols-outlined material-icons">
+                  shopping_cart
+                  </span>
+                ยอดสั่งซื้อ</a>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                Dropdown link
-              </a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <a class="dropdown-item" href="#">Something else here</a>
-              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/user">
+                <span class="material-symbols-outlined material-icons">
+                settings_accessibility
+                </span>
+                ผู้ใช้งานระบบ</a>
             </li>
           </ul>
         </div>
