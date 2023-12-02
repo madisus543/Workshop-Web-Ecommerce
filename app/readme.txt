@@ -22,3 +22,6 @@ $npm install dayjs
 
 #install lib jsonwebtoken
 $npm install jsonwebtoken
+
+#install formidable for upload file
+npm install formidable

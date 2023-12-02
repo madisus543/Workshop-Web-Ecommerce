@@ -1,0 +1,45 @@
+<%- include('header') %>
+
+<form  method="post" enctype="multipart/form-data">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title">เพิ่มรายการสินค้า</div>
+            <div class="mt-2">
+                <label>ประเภทสินค้า</label>
+                <select name="group_product_id" class="form-control">
+                    <% groupProduct.forEach((groupProduct) => { %>
+                    <option value="<%= groupProduct.id %>" >
+                        <%= groupProduct.name %>
+                    </option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="mt-2">
+                <label>Barcode</label>
+                <input type="text" name="barcode" class="form-control">
+            </div>
+            <div class="mt-2">
+                <label>ชื่อสินค้า</label>
+                <input type="text" name="name" class="form-control">
+            </div>
+            <div class="mt-2">
+                <label>ราคาทุน</label>
+                <input type="text" name="cost" class="form-control">
+            </div>
+            <div class="mt-2">
+                <label>ราคาจำหน่าย</label>
+                <input type="text" name="price" class="form-control">
+            </div>
+            <div class="mt-2">
+                <label>รูปภาพ</label>
+                <input type="file" name="image" class="form-control">
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-info">
+                    SAVE
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+<%- include('footer') %>

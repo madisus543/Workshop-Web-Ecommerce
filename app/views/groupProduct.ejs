@@ -1,0 +1,48 @@
+<%- include('header') %>
+
+<div class="card">
+    <div class="card-body">
+        <div class="card-title h3">ประเภทสินค้า</div>
+        <div>
+            <a href="/addgroupProduct" class="btn btn-info">
+                <span class="material-symbols-outlined material-icons">
+                    add
+                    </span>
+                เพิ่มรายการ
+            </a>
+            <table class="table table-bordered table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th width="130px">
+                            <span class="material-symbols-outlined material-icons ">
+                                menu
+                            </span>
+                        </th>
+                        <th>ชื่อประเภทสินค้า</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% groupProducts.forEach((groupProducts) => { %>
+                    <tr>
+                        <td class="text-center">
+                            <a class="btn btn-info" href="/editgroupProduct/<%= groupProducts.id  %>">
+                                <span class="material-symbols-outlined material-icons">
+                                    edit
+                                    </span>   
+                            </a>
+                            <a class="btn btn-danger" href="/deletegroupProduct/<%= groupProducts.id  %>" onclick="return confirm('Are you sure to Delete ?')">
+                                <span class="material-symbols-outlined material-icons">
+                                    delete
+                                    </span>
+                            </a>
+                        </td>    
+                        <td><%= groupProducts.name %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

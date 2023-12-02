@@ -1,0 +1,19 @@
+<%- include('header') %>
+
+<form method="post">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title h3">เพิ่มรายการ ประเภทสินค้า</div>
+            <div class="mt-2">
+                <label class="h5">ชื่อ</label>
+                <input type="text" name="name" class="form-control" value="<%= groupProducts.name %>">
+            </div>  
+            <div class="mt-2">
+                <button type="submit" class="btn btn-info">
+                    SAVE
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+<%- include('footer') %>

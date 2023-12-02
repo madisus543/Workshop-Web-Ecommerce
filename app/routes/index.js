@@ -1,5 +1,8 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
+let formidable = require('formidable');
+let fs = require('fs');
+
 // import connect
 let con = require('./connect');
 
@@ -162,5 +165,99 @@ router.get('/deleteUser/:id', isLogin, (req,res)=> {
   })
 })
 
+router.get('/groupProduct', isLogin,(req,res)=> {
+  let sql = 'SELECT * FROM tb_group_product ORDER BY id DESC'
+  con.query(sql,(err,result)=> {
+    if (err) throw err;
+    res.render('groupProduct',{groupProducts:result})
+  }) 
+})
+  
 
+router.get('/addgroupProduct', isLogin,(req,res)=> {
+  res.render('addgroupProduct',{ groupProducts: {} })
+})
+
+router.post('/addgroupProduct', isLogin, (req,res)=> {
+  let sql = 'INSERT INTO tb_group_product SET ?';
+  let params = req.body;
+  con.query(sql, params, (err,result)=> {
+    if (err) throw err;
+    res.redirect('/groupProduct')
+  })
+})
+
+router.get('/editgroupProduct/:id', isLogin, (req,res)=> {
+  let sql = 'SELECT * FROM tb_group_product WHERE id = ?'
+  let params = req.params.id;
+  con.query(sql, params, (err,result)=> {
+    if (err) throw err;
+    res.render('addgroupProduct' , { groupProducts: result[0]})
+  })
+})
+
+router.post('/editgroupProduct/:id', isLogin, (req,res)=> {
+  let sql = 'UPDATE tb_group_product SET name = ? WHERE id = ?'
+  let params = [
+    req.body['name'],
+    req.params.id
+  ]
+  con.query(sql, params, (err,result)=> {
+    if (err) throw err;
+    res.redirect('/groupProduct')
+  })
+})
+
+router.get('/deletegroupProduct/:id', isLogin, (req,res)=> {
+  let sql = 'DELETE FROM tb_group_product WHERE id = ?'
+  let params = [req.params.id]
+  con.query(sql, params, (err,result)=> {
+    if (err) throw err;
+    res.redirect('/groupProduct')
+  })
+})
+
+router.get('/product', isLogin, (req,res)=> {
+  let sql = 'SELECT * FROM tb_product ORDER BY id DESC'
+  con.query(sql , (err,result)=> {
+    if (err) throw err;
+    res.render('product', { products: result })
+  })
+})
+
+router.get('/addProduct', isLogin, (req,res)=> {
+  let sql = 'SELECT * FROM tb_group_product ORDER BY name'
+  con.query(sql, (err,result)=> {
+    if (err) throw err;
+    res.render('addProduct', { product: {}, groupProduct:result })
+  })
+})
+
+router.post('/addProduct', isLogin, (req, res) => {
+  let form = new formidable.IncomingForm();
+  form.parse(req, (err, fields, file) => {
+    let filePath = file.image[0].filepath;
+    let newPath = 'C:/Users/User/Desktop/Programming/Course Full Node.js/Workshop Web Ecommerce/app/public/images/';
+    newPath += file.image[0].originalFilename;
+
+    fs.copyFile(filePath, newPath, () => {
+      // insert to database
+      let sql = 'INSERT INTO tb_product(group_product_id, barcode, name, cost, price, image) VALUES(?, ?, ?, ?, ?, ?)';
+      let params = [
+        fields['group_product_id'],
+        fields['barcode'],
+        fields['name'],
+        fields['cost'],
+        fields['price'],
+        file.image[0].originalFilename
+      ];
+      
+      con.query(sql, params, (err, result) => {
+        if (err) throw err;
+        res.redirect('/product');
+      })
+      
+    })
+  })
+})
 module.exports = router;

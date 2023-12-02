@@ -1,0 +1,39 @@
+<%- include('header') %>
+
+<div class="card">
+    <div class="card-body">
+        <div class="card-title h3">สินค้า</div>
+        <div class="mt-2">
+            <a href="/addProduct" class="btn btn-info" >
+                <span class="material-symbols-outlined material-icons">
+                    library_add
+                    </span>
+                เพิ่มรายการสินค้า
+            </a>
+        </div>
+        <div class="mt-2 ">
+            <table class="table table-bordered table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th width="130px"></th>
+                        <th>ภาพสินค้า</th>
+                        <th>ประเภทสินค้า</th>
+                        <th>บาโค้ด</th>
+                        <th>รายการสินค้า</th>
+                        <th>ราคาทุน</th>
+                        <th>ราคาจำหน่าย</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% products.forEach((products) => { %>
+                        <tr>
+                            <td></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>
