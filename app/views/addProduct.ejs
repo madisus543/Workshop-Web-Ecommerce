@@ -7,32 +7,39 @@
             <div class="mt-2">
                 <label>ประเภทสินค้า</label>
                 <select name="group_product_id" class="form-control">
-                    <% groupProduct.forEach((groupProduct) => { %>
-                    <option value="<%= groupProduct.id %>" >
-                        <%= groupProduct.name %>
+                    <% groupProducts.forEach((groupProducts) => { %>
+                    <option value="<%= groupProducts.id %>" 
+                        <% if (products.group_product_id == groupProducts.id) { %>
+                            selected
+                        <% } %>
+                        >
+                        <%= groupProducts.name %>
                     </option>
                     <% }) %>
                 </select>
             </div>
             <div class="mt-2">
                 <label>Barcode</label>
-                <input type="text" name="barcode" class="form-control">
+                <input type="text" name="barcode" class="form-control" value="<%= products.barcode %>">
             </div>
             <div class="mt-2">
                 <label>ชื่อสินค้า</label>
-                <input type="text" name="name" class="form-control">
+                <input type="text" name="name" class="form-control" value="<%= products.name %>">
             </div>
             <div class="mt-2">
                 <label>ราคาทุน</label>
-                <input type="text" name="cost" class="form-control">
+                <input type="text" name="cost" class="form-control" value="<%= products.cost %>">
             </div>
             <div class="mt-2">
                 <label>ราคาจำหน่าย</label>
-                <input type="text" name="price" class="form-control">
+                <input type="text" name="price" class="form-control" value="<%= products.price %>">
             </div>
             <div class="mt-2">
                 <label>รูปภาพ</label>
-                <input type="file" name="image" class="form-control">
+                <% if (products.image != undefined) { %>
+                <div class="mb-2 mt-1"><img src="../images/<%= products.image %>" width="200px" ></div>
+                <% } %>
+                <input type="file" name="image" class="form-control" value="<%= products.image %>>
             </div>
             <div class="mt-3">
                 <button type="submit" class="btn btn-info">

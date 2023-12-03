@@ -218,7 +218,10 @@ router.get('/deletegroupProduct/:id', isLogin, (req,res)=> {
 })
 
 router.get('/product', isLogin, (req,res)=> {
-  let sql = 'SELECT * FROM tb_product ORDER BY id DESC'
+  let sql = '' +
+  ' SELECT tb_product.*, tb_group_product.name AS group_product_name FROM tb_product' +
+  ' LEFT JOIN tb_group_product ON tb_group_product.id = tb_product.group_product_id'+
+  ' ORDER BY tb_product.id DESC';
   con.query(sql , (err,result)=> {
     if (err) throw err;
     res.render('product', { products: result })
@@ -229,7 +232,7 @@ router.get('/addProduct', isLogin, (req,res)=> {
   let sql = 'SELECT * FROM tb_group_product ORDER BY name'
   con.query(sql, (err,result)=> {
     if (err) throw err;
-    res.render('addProduct', { product: {}, groupProduct:result })
+    res.render('addProduct', { products: {}, groupProducts:result })
   })
 })
 
@@ -256,8 +259,101 @@ router.post('/addProduct', isLogin, (req, res) => {
         if (err) throw err;
         res.redirect('/product');
       })
-      
     })
   })
 })
+
+router.get('/editProduct/:id', isLogin, (req, res)=> {
+  let sql = 'SELECT * FROM tb_product WHERE id = ?';
+  let params = req.params.id;
+  con.query(sql, params, (err,products)=> {
+    if (err) throw err;
+
+    sql = 'SELECT * FROM tb_group_product ORDER BY name'
+    con.query(sql, (err,groupProducts)=> {
+      if (err) throw err;
+      res.render('addProduct', { products: products[0], groupProducts:groupProducts })
+    })
+  })
+})
+
+router.post('/editProduct/:id', isLogin, (req, res)=> {
+  let form = new formidable.IncomingForm();
+  form.parse(req, (err, fields, file) => {
+    if (file.image != undefined) {
+    let filePath = file.image[0].filepath;
+    let newPath = 'C:/Users/User/Desktop/Programming/Course Full Node.js/Workshop Web Ecommerce/app/public/images/';
+    let pathUpload = newPath + file.image[0].originalFilename;
+
+    fs.copyFile(filePath, pathUpload, () => {
+      let sqlSelect = 'SELECT image FROM tb_product WHERE id = ?'
+      let paramSelect = req.params.id;
+
+      con.query(sqlSelect, paramSelect, (err, oldProduct)=> {
+        if (err) throw err;
+        let product = oldProduct[0];
+        fs.unlink(newPath + product.image, (err) => {
+          if (err){
+            console.log(err);
+          }
+          // update to database
+          let sql = 'UPDATE tb_product SET group_product_id=?, barcode=?, name=?, cost=?, price=?, image=? WHERE id=? ';
+          let params = [
+            fields['group_product_id'],
+            fields['barcode'],
+            fields['name'],
+            fields['cost'],
+            fields['price'],
+            file.image[0].originalFilename,
+            req.params.id
+          ];
+          con.query(sql, params, (err, result) => {
+            if (err) throw err;
+            res.redirect('/product');
+          })
+        })
+      })
+    })
+    } else {
+          // image no change
+          let sql = 'UPDATE tb_product SET group_product_id=?, barcode=?, name=?, cost=?, price=? WHERE id=? ';
+          let params = [
+            fields['group_product_id'],
+            fields['barcode'],
+            fields['name'],
+            fields['cost'],
+            fields['price'],
+            req.params.id
+          ];
+          con.query(sql, params, (err, result) => {
+            if (err) throw err;
+            res.redirect('/product');
+          })
+    }
+  })
+})
+
+router.get('/deleteProduct/:id', isLogin, (req,res)=> {
+  let sqlDelete = 'SELECT image FROM tb_product WHERE id = ?'
+  let paramDelete = req.params.id;
+  con.query(sqlDelete, paramDelete, (err, result)=> {
+    if (err) throw err;
+    let newPath = 'C:/Users/User/Desktop/Programming/Course Full Node.js/Workshop Web Ecommerce/app/public/images/';
+    newPath += result[0].image;
+
+    fs.unlink(newPath, (err) => {
+      if (err) throw err;
+      let sql = 'DELETE FROM tb_product WHERE id = ?'
+      let params = req.params.id;
+
+      con.query(sql, params, (err, result)=> {
+        if (err) throw err;
+        res.redirect('/product');
+      })
+    })
+  })
+})
+
+  
+
 module.exports = router;
