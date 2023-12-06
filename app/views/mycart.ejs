@@ -1,0 +1,45 @@
+<%- include('page_header') %>
+
+<div class="container">
+    <div class="h4">ตะกร้าสินค้า</div>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th width="150px"></th>
+                <th width="100px">ภาพสินค้า</th>
+                <th width="100px">บาร์โค้ด</th>
+                <th>รายการ</th>
+                <th width="100px" class="text-rigth">ราคา</th>
+                <th width="100px" class="text-rigth">จำนวน</th>
+                <th width="100px" class="text-rigth">ยอดรวม</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% products.forEach((product) => { %>
+            <tr>
+                <td class="text-center">
+                    <a class="btn btn-info">
+                        <span class="material-symbols-outlined material-icons">
+                            edit
+                            </span>   
+                    </a>
+                    <a class="btn btn-danger">
+                        <span class="material-symbols-outlined material-icons">
+                            delete
+                            </span>
+                    </a>
+                </td>
+                <td><img src="images/<%= product.image %>" width="100px"></td>
+                <td><%= product.barcode %></td>
+                <td><%= product.name %></td>
+                <td class="text-rigth"><%= product.price %></td>
+                <td class="text-rigth"><%= product.qty %></td>
+                <td class="text-rigth"><%= product.qty * product.price %></td>
+            </tr>
+            <% }) %>
+
+        </tbody>
+    </table>
+</div>
+
+<%- include('page_footer') %>

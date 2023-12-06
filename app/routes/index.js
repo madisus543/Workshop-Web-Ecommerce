@@ -26,7 +26,16 @@ router.use((req,res,next) => {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  let sql = 'SELECT * FROM tb_product ORDER BY id DESC';
+  con.query(sql, (err,result)=> {
+    if (err) throw err;
+
+    if (req.session.card == undefined) {
+      req.session.card = [] ;
+    }
+
+    res.render('index', { products: result } )
+  })
 });
 
 router.get('/login', (req,res) => {
@@ -281,39 +290,39 @@ router.post('/editProduct/:id', isLogin, (req, res)=> {
   let form = new formidable.IncomingForm();
   form.parse(req, (err, fields, file) => {
     if (file.image != undefined) {
-    let filePath = file.image[0].filepath;
-    let newPath = 'C:/Users/User/Desktop/Programming/Course Full Node.js/Workshop Web Ecommerce/app/public/images/';
-    let pathUpload = newPath + file.image[0].originalFilename;
+      let filePath = file.image[0].filepath;
+      let newPath = 'C:/Users/User/Desktop/Programming/Course Full Node.js/Workshop Web Ecommerce/app/public/images/';
+      let pathUpload = newPath + file.image[0].originalFilename;
 
-    fs.copyFile(filePath, pathUpload, () => {
-      let sqlSelect = 'SELECT image FROM tb_product WHERE id = ?'
-      let paramSelect = req.params.id;
+      fs.copyFile(filePath, pathUpload, () => {
+        let sqlSelect = 'SELECT image FROM tb_product WHERE id = ?'
+        let paramSelect = req.params.id;
 
-      con.query(sqlSelect, paramSelect, (err, oldProduct)=> {
-        if (err) throw err;
-        let product = oldProduct[0];
-        fs.unlink(newPath + product.image, (err) => {
-          if (err){
-            console.log(err);
-          }
-          // update to database
-          let sql = 'UPDATE tb_product SET group_product_id=?, barcode=?, name=?, cost=?, price=?, image=? WHERE id=? ';
-          let params = [
-            fields['group_product_id'],
-            fields['barcode'],
-            fields['name'],
-            fields['cost'],
-            fields['price'],
-            file.image[0].originalFilename,
-            req.params.id
-          ];
-          con.query(sql, params, (err, result) => {
-            if (err) throw err;
-            res.redirect('/product');
+        con.query(sqlSelect, paramSelect, (err, oldProduct)=> {
+          if (err) throw err;
+          let product = oldProduct[0];
+          fs.unlink(newPath + product.image, (err) => {
+            if (err){
+              console.log(err);
+            }
+            // update to database
+            let sql = 'UPDATE tb_product SET group_product_id=?, barcode=?, name=?, cost=?, price=?, image=? WHERE id=? ';
+            let params = [
+              fields['group_product_id'],
+              fields['barcode'],
+              fields['name'],
+              fields['cost'],
+              fields['price'],
+              file.image[0].originalFilename,
+              req.params.id
+            ];
+            con.query(sql, params, (err, result) => {
+              if (err) throw err;
+              res.redirect('/product');
+            })
           })
         })
       })
-    })
     } else {
           // image no change
           let sql = 'UPDATE tb_product SET group_product_id=?, barcode=?, name=?, cost=?, price=? WHERE id=? ';
@@ -333,27 +342,84 @@ router.post('/editProduct/:id', isLogin, (req, res)=> {
   })
 })
 
-router.get('/deleteProduct/:id', isLogin, (req,res)=> {
-  let sqlDelete = 'SELECT image FROM tb_product WHERE id = ?'
-  let paramDelete = req.params.id;
-  con.query(sqlDelete, paramDelete, (err, result)=> {
+router.get('/deleteProduct/:id/:image', isLogin, (req,res)=> {
+  let newPath = 'C:/Users/User/Desktop/Programming/Course Full Node.js/Workshop Web Ecommerce/app/public/images/';
+  newPath += req.params.image;
+
+  fs.unlink(newPath, (err) => {
     if (err) throw err;
-    let newPath = 'C:/Users/User/Desktop/Programming/Course Full Node.js/Workshop Web Ecommerce/app/public/images/';
-    newPath += result[0].image;
+    let sql = 'DELETE FROM tb_product WHERE id = ?'
+    let params = req.params.id;
 
-    fs.unlink(newPath, (err) => {
+    con.query(sql, params, (err, result)=> {
       if (err) throw err;
-      let sql = 'DELETE FROM tb_product WHERE id = ?'
-      let params = req.params.id;
-
-      con.query(sql, params, (err, result)=> {
-        if (err) throw err;
-        res.redirect('/product');
-      })
+      res.redirect('/product');
     })
   })
 })
 
+router.get('/addToCard/:id', (req,res)=> {
+  let card = [];
   
+  if (req.session.card == null) {
+    // first item
+    let order = {
+    product_id: req.params.id,
+    qty: 1
+    }
+    card.push(order);
+    } else {
+    //second item
+    card = req.session.card;
+    let qty = 1;
+    let newItem = true;
+
+    for (let i = 0; i < card.length; i++) {
+      if (card[i].product_id == req.params.id) {
+        qty++
+        card[i].qty = qty;
+        newItem = false;
+      }
+    }
+    if (newItem) {
+      let order = {
+        product_id: req.params.id,
+        qty: qty
+      }
+      card.push(order);
+    }
+  }
+
+  req.session.card = card;
+  res.redirect('/')
+  //console.log(req.session.card)
+})
+
+router.get('/mycart', async (req,res)=> {
+  let conn = require('./connect2');
+  let cart = req.session.card;
+  let products = [];
+
+  for (let i = 0 ; i < cart.length; i++){
+    let c = cart[i];
+    let sql = 'SELECT * FROM tb_product WHERE id = ?';
+    let params = [c.product_id];
+
+    let [row, fields] = await conn.query(sql, params);
+    let product = row[0];
+
+    let p = {
+      qty: c.qty,
+      id: product.id,
+      barcode: product.barcode,
+      name: product.name,
+      price: product.price,
+      image: product.image
+    }
+    products.push(p);
+  }
+
+  res.render('mycart', { products:products });
+})
 
 module.exports = router;

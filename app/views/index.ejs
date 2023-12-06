@@ -1,12 +1,31 @@
-<%- include('header')  %>
+<%- include('page_header') %>
 
+<div class="container">
+    <div class="row">
+        <% products.forEach((products) => { %>
+            <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <img src="images/<%= products.image %>" class="card-img-top" height="150px" >
+                            <div><%= products.name %></div>
+                            <div><%= products.price %></div>
+                            <a href="/addToCard/<%= products.id %>" class="btn btn-info mt-2">
+                                <span class="material-symbols-outlined material-icons">
+                                    storefront
+                                    </span>
+                                Add Card
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>    
+        <% }) %>
+    </div>
+</div>
 
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <a href="/login">Login</a>
+<%- include('page_footer') %>
 
-
-<%- include('footer')  %>
 
 
 

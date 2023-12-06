@@ -25,3 +25,6 @@ $npm install jsonwebtoken
 
 #install formidable for upload file
 npm install formidable
+
+#install mysql2 
+npm install mysql2
