@@ -360,13 +360,12 @@ router.get('/deleteProduct/:id/:image', isLogin, (req,res)=> {
 
 router.get('/addToCard/:id', (req,res)=> {
   let card = [];
-  
+  let order = {
+  product_id: req.params.id,
+  qty: 1
+  }
   if (req.session.card == null) {
     // first item
-    let order = {
-    product_id: req.params.id,
-    qty: 1
-    }
     card.push(order);
     } else {
     //second item
@@ -376,16 +375,11 @@ router.get('/addToCard/:id', (req,res)=> {
 
     for (let i = 0; i < card.length; i++) {
       if (card[i].product_id == req.params.id) {
-        qty++
-        card[i].qty = qty;
+        card[i].qty = card[i].qty + 1;
         newItem = false;
       }
     }
     if (newItem) {
-      let order = {
-        product_id: req.params.id,
-        qty: qty
-      }
       card.push(order);
     }
   }
@@ -399,27 +393,79 @@ router.get('/mycart', async (req,res)=> {
   let conn = require('./connect2');
   let cart = req.session.card;
   let products = [];
+  let totalQty = 0;
+  let totalPrice = 0;
 
-  for (let i = 0 ; i < cart.length; i++){
-    let c = cart[i];
-    let sql = 'SELECT * FROM tb_product WHERE id = ?';
-    let params = [c.product_id];
+  if (cart.length > 0) {
+    for (let i = 0 ; i < cart.length; i++){
+      let c = cart[i];
+      let sql = 'SELECT * FROM tb_product WHERE id = ?';
+      let params = [c.product_id];
 
-    let [row, fields] = await conn.query(sql, params);
-    let product = row[0];
+      let [row, fields] = await conn.query(sql, params);
+      let product = row[0];
 
-    let p = {
-      qty: c.qty,
-      id: product.id,
-      barcode: product.barcode,
-      name: product.name,
-      price: product.price,
-      image: product.image
+      let p = {
+        qty: c.qty,
+        id: product.id,
+        barcode: product.barcode,
+        name: product.name,
+        price: product.price,
+        image: product.image
+      }
+      products.push(p);
+
+      totalQty += parseInt(c.qty);
+      totalPrice += (c.qty * product.price)
     }
-    products.push(p);
   }
+  res.render('mycart', { 
+    products: products,
+    totalQty: totalQty,
+    totalPrice: totalPrice
+  });
+})
 
-  res.render('mycart', { products:products });
+router.get('/deleteItemInCart/:id', (req,res)=> {
+  let cart = req.session.card;
+
+  for (let i =0; i < cart.length; i++) {
+    if (cart[i].product_id == req.params.id) {
+      cart.splice(i, 1);
+    }
+  }
+  req.session.card = cart;
+  res.redirect('/mycart');
+})
+
+router.get('/editItemInCart/:id', (req,res)=> {
+  let sql = 'SELECT * FROM tb_product WHERE id = ?'
+  let params = req.params.id;
+  con.query(sql, params, (err,result) => {
+    if (err) throw err;
+    let product = result[0];
+    let cart = req.session.card;
+
+    for (let i = 0; i < cart.length; i++) {
+      if (cart[i].product_id == product.id) {
+        product.qty = cart[i].qty;
+      }
+    }
+
+    res.render('editItemInCart', {product: product});
+  })
+})
+
+router.post('/editItemInCart/:id', (req,res)=> {
+  let cart = req.session.card;
+
+  for (let i =0; i < cart.length; i++) {
+    if (cart[i].product_id == req.params.id) {
+      cart[i].qty = req.body['qty'];
+    }
+  }
+  req.session.card = cart;
+  res.redirect('/mycart')
 })
 
 module.exports = router;

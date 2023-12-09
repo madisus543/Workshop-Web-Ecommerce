@@ -18,12 +18,12 @@
             <% products.forEach((product) => { %>
             <tr>
                 <td class="text-center">
-                    <a class="btn btn-info">
+                    <a class="btn btn-info" href="/editItemInCart/<%= product.id %>">
                         <span class="material-symbols-outlined material-icons">
                             edit
                             </span>   
                     </a>
-                    <a class="btn btn-danger">
+                    <a class="btn btn-danger" href="/deleteItemInCart/<%= product.id %>" onclick="return confirm('Are you sure!!!')">
                         <span class="material-symbols-outlined material-icons">
                             delete
                             </span>
@@ -40,6 +40,10 @@
 
         </tbody>
     </table>
+
+    <div class="text-center">
+        รวม <%= totalQty %> ชิ้น เป็นเงิน <%= totalPrice %> บาท
+    </div>
 </div>
 
 <%- include('page_footer') %>
