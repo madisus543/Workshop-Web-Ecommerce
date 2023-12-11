@@ -1,0 +1,48 @@
+<%- include('header') %>
+
+
+<div class="h4">รายการสั่งซื้อจากลูกค้า</div>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th width="400px" class="text-center">Status</th>
+            <th width="80px">รหัสบิล</th>
+            <th width="100px">ชื่อ</th>
+            <th width="150px">เบอร์ติดต่อ</th>
+            <th>ที่อยู่จัดส่ง</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% orders.forEach((order) => { %>
+            <tr>
+                <td class="text-center">
+                    <a href="" class="btn btn-info">
+                        <span class="material-symbols-outlined material-icons">
+                            attach_money
+                        </span>                                
+                        ชำระเงินแล้ว
+                    </a>
+                    <a href="" class="btn btn-success">
+                        <span class="material-symbols-outlined material-icons">
+                            local_shipping
+                        </span>
+                        จัดส่งสินค้า
+                    </a>
+                    <a href="" class="btn btn-danger">
+                        <span class="material-symbols-outlined material-icons">
+                            cancel
+                        </span>
+                        ยกเลิก
+                    </a>
+                </td>
+                <td><a href="/orderInfo/<%= order.id %>"><%= order.id %></a></td>
+                <td><%= order.name %></td>
+                <td><%= order.phone %></td>
+                <td><%= order.address %></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+
+<%- include('footer') %>

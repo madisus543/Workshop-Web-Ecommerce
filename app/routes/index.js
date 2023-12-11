@@ -457,7 +457,7 @@ router.get('/editItemInCart/:id', (req,res)=> {
 })
 
 router.post('/editItemInCart/:id', (req,res)=> {
-  let cart = req.session.card;
+  let cart = n;
 
   for (let i =0; i < cart.length; i++) {
     if (cart[i].product_id == req.params.id) {
@@ -466,6 +466,90 @@ router.post('/editItemInCart/:id', (req,res)=> {
   }
   req.session.card = cart;
   res.redirect('/mycart')
+})
+
+router.get('/confirmOrder', (req,res)=> {
+  res.render('confirmOrder')
+})
+
+router.post('/confirmOrder', async (req,res)=> {
+  let con = require('./connect2');
+
+  // insert into order
+  let sql = 'INSERT INTO tb_order(name, address, phone, created_date) VALUES(?, ?, ?, NOW())'
+  let params = [
+    req.body['name'],
+    req.body['address'],
+    req.body['phone']
+  ]
+
+  try {
+    let [rows, fields] = await con.query(sql, params)
+    let lastId = rows.insertId;
+    let carts = req.session.card;
+
+    for (let i = 0; i < carts.length; i++) {
+      let cart = carts[i]
+      // find product data
+      let sqlFindProduct = 'SELECT price FROM tb_product WHERE id = ?'
+      params = [cart.product_id];
+      let [rows, fields] = await con.query(sqlFindProduct, params);
+      let price = rows[0].price;
+
+      let sqlOrderDetail = 'INSERT INTO tb_order_detail(order_id, product_id, qty, price) VALUES(?, ?, ?, ?)'
+      params = [
+        lastId,
+        cart.product_id,
+        cart.qty,
+        price
+      ]
+      await con.query(sqlOrderDetail, params);
+    }
+  } catch(err) {
+    res.send(err);
+  }
+  req.session.card = []
+  res.redirect('/confirmOrderSuccess')
+})
+
+router.get('/confirmOrderSuccess', (req,res)=> {
+  res.render('confirmOrderSuccess')
+})
+
+router.get('/order', isLogin, (req,res)=> {
+  let sql = 'SELECT * FROM tb_order ORDER BY id DESC'
+  con.query(sql, (err,result)=> {
+    if (err) throw err;
+    res.render('order', { orders: result })
+  })
+})
+
+router.get('/orderInfo/:id', isLogin, (req,res)=>{
+  let sql = '';
+  sql += ' SELECT tb_order_detail.*, tb_product.barcode, tb_product.name, tb_product.image FROM tb_order_detail';
+  sql += ' LEFT JOIN tb_product ON tb_product.id = tb_order_detail.product_id';
+  sql += ' WHERE tb_order_detail.order_id = ?';
+  sql += ' ORDER BY tb_order_detail.id DESC';
+  
+  let params = [req.params.id];
+  let totalQty = 0;
+  let totalPrice = 0;
+
+  con.query(sql, params, (err,result)=> {
+    if (err) throw err;
+
+    for (let i = 0; i < result.length; i++){
+      let orderInfo = result[i]
+      totalQty += orderInfo.qty;
+      totalPrice += (orderInfo.qty * orderInfo.price)
+    }
+
+    res.render('orderInfo', { 
+      orderDetails: result, 
+      totalQty: totalQty, 
+      totalPrice: totalPrice 
+    })
+  })
 })
 
 module.exports = router;

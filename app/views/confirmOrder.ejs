@@ -1,0 +1,23 @@
+<%- include('page_header') %>
+
+<div class="container">
+    <div class="h4 mt-2">ยืนยันการซื้อ</div>
+    <form method="post">    
+        <div class="mt-2">
+            <label>ชื่อ</label>
+            <input type="text" name="name" class="form-control">
+        </div>
+        <div class="mt-2">
+            <label>ที่อยู่จัดส่ง</label>
+            <input type="text" name="address" class="form-control">
+        </div>
+        <div class="mt-2">
+            <label>เบอร์โทร</label>
+            <input type="text" name="phone" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-info mt-2">
+            SAVE
+        </button>
+    </form>
+</div>
+<%- include('page_footer') %>
