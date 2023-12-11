@@ -28,3 +28,6 @@ npm install formidable
 
 #install mysql2 
 npm install mysql2
+
+#install numeral
+npm install numeral

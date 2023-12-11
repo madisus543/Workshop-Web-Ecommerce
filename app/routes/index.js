@@ -2,6 +2,7 @@ let express = require('express');
 let router = express.Router();
 let formidable = require('formidable');
 let fs = require('fs');
+let numeral = require('numeral')
 
 // import connect
 let con = require('./connect');
@@ -21,6 +22,7 @@ router.use(session({
 
 router.use((req,res,next) => {
   res.locals.session = req.session;
+  res.locals.numeral = numeral;
   next();
 })
 
@@ -549,6 +551,22 @@ router.get('/orderInfo/:id', isLogin, (req,res)=>{
       totalQty: totalQty, 
       totalPrice: totalPrice 
     })
+  })
+})
+
+router.get('/deleteOrder/:id', isLogin, (req,res)=> {
+  let sql = 'DELETE FROM tb_order WHERE id = ?'
+  let params = [req.params.id];
+
+  con.query(sql, params, (err, result)=> {
+    if (err) throw err;
+
+    sql = 'DELETE FROM tb_order_detail WHERE order_id = ?'
+    con.query(sql, params, (err,result)=> {
+      if (err) throw err;
+      res.redirect('/order')
+    })
+
   })
 })
 

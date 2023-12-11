@@ -19,16 +19,16 @@
                     <td><img src="../images/<%= orderDetail.image %>" width="100px"></td>
                     <td><%= orderDetail.barcode %></td>
                     <td><%= orderDetail.name %></td>
-                    <td class="text-right"><%= orderDetail.price %></td>
-                    <td class="text-right"><%= orderDetail.qty %></td>
-                    <td class="text-right"><%= orderDetail.qty * orderDetail.price %></td>
+                    <td class="text-right"><%= numeral(orderDetail.price).format() %></td>
+                    <td class="text-right"><%= numeral(orderDetail.qty).format() %></td>
+                    <td class="text-right"><%= numeral(orderDetail.qty * orderDetail.price).format() %></td>
                 </tr>
             <% }) %>
         </tbody>
     </table>
     <div class="alert alert-success mt-2">
-        จำนวน = <%= totalQty %> รายการ
-        ราคาทั้งหมด = <%= totalPrice %> บาท
+        จำนวน = <%= numeral(totalQty).format() %> รายการ
+        ราคาทั้งหมด = <%= numeral(totalPrice).format() %> บาท
     </div>
 </div>
 
