@@ -1,0 +1,61 @@
+<%- include('header') %>
+
+<div class="card">
+    <div class="card-body">
+        <div class="card-title h3">รายงานยอดขาย รายวัน</div>
+        <form method="get">
+            <div class="row">
+                <div class="col-2">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">ปี</div>
+                        </div>
+                        <select class="form-control" name="year">
+                            <% arrYears.forEach((item) => { %>
+                                <option value="<%= item %>" <% if (item == y) { %> selected <% } %>>
+                                    <%= item %>
+                                </option>
+                            <% }) %>  
+                        </select>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">เดือน</div>
+                        </div>
+                        <select class="form-control" name="mouth">
+                            <% arrMouths.forEach((item, index) => { %>
+                                <option value="<%= index + 1 %>" <% if (index + 1 == m) { %> selected <% } %>>
+                                    <%= item %>
+                                </option>
+                            <% }) %>                           
+                        </select>
+                    </div>
+                </div>
+                    <button type="submit" class="btn btn-info">
+                        แสดงข้อมูล
+                    </button>
+                </div> 
+        </form>
+        <table class="table table-bordered table-striped mt-2">
+            <thead>
+                <tr>
+                    <th width="100px">วันที่</th>
+                    <th class="text-right">ยอดขาย</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% arr.forEach((item, index)=> { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td class="text-right"><%= item %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<%- include('footer') %>

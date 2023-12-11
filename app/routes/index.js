@@ -3,6 +3,8 @@ let router = express.Router();
 let formidable = require('formidable');
 let fs = require('fs');
 let numeral = require('numeral')
+let dayjs = require('dayjs')
+let dayFormat = 'DD/MM/YYYY'
 
 // import connect
 let con = require('./connect');
@@ -23,6 +25,8 @@ router.use(session({
 router.use((req,res,next) => {
   res.locals.session = req.session;
   res.locals.numeral = numeral;
+  res.locals.dayjs = dayjs;
+  res.locals.dayFormat = dayFormat;
   next();
 })
 
@@ -568,6 +572,139 @@ router.get('/deleteOrder/:id', isLogin, (req,res)=> {
     })
 
   })
+})
+
+router.get('/payOrder/:id', isLogin, (req,res)=> {
+  res.render('payOrder', { orderId: req.params.id })
+})
+
+router.post('/payOrder/:id', isLogin, (req,res)=> {
+  let sql = 'UPDATE tb_order SET pay_date = ?, pay_remark = ? WHERE id = ?'
+  let params = [
+    req.body['pay_date'],
+    req.body['pay_remark'],
+    req.params.id
+  ]
+  con.query(sql, params, (err, result)=> {
+    if (err) throw err;
+    res.render('payOrderSuccess')
+  })
+})
+
+router.get('/sendOrder/:id', isLogin, (req,res)=> {
+  res.render('sendOrder', { orderId: req.params.id })
+})
+
+router.post('/sendOrder/:id', isLogin, (req,res)=> {
+  let sql = 'UPDATE tb_order SET send_date = ?, track_name = ?, track_code = ?, send_remark = ? WHERE id = ?';
+  let params = [
+    req.body['send_date'],
+    req.body['track_name'],
+    req.body['track_code'],
+    req.body['send_remark'],
+    req.params.id
+  ]
+  con.query(sql, params, (err,result)=> {
+    if (err) throw err;
+    res.render('sendOrderSuccess')
+  })
+})
+
+router.get('/reportSalePerDay', isLogin, async (req,res)=> {
+  let con = require('./connect2');
+  let y = dayjs().year();
+  let yForloop = dayjs().year();
+  let m = dayjs().month() + 1;
+  let daysInMonth = dayjs(y + '/' + m + '/1').daysInMonth();
+  let arr = [];
+  let arrYears = [];
+  let arrMouths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  if (req.query['year'] != undefined) {
+    y = req.query['year'];
+    m = req.query['month']
+  }
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    let sql = '';
+    sql += ' SELECT SUM(qty * price) AS totalPrice FROM tb_order_detail';
+    sql += ' LEFT JOIN tb_order ON tb_order.id = tb_order_detail.order_id';
+    sql += ' WHERE DAY(tb_order.pay_date) = ?';
+    sql += ' AND MONTH(tb_order.pay_date) = ?';
+    sql += ' AND YEAR(tb_order.pay_date) = ?';
+
+    let params = [i, m, y];
+    let [rows, fields] = await con.query(sql,params);
+    arr.push(rows[0].totalPrice);
+  }
+
+  for (let i = yForloop - 4; i <= yForloop; i++) {
+    arrYears.push(i);
+  }
+
+  res.render('reportSalePerDay', { arr: arr, y: y, m: m , arrYears: arrYears, arrMouths: arrMouths})
+})
+
+router.get('/reportSalePerMonth', isLogin, async (req,res)=> {
+  let con = require('./connect2');
+  let y = dayjs().year();
+  let yForloop = dayjs().year();
+  let arr = [];
+  let arrYears = [];
+
+  if (req.body['year'] != undefined) {
+    y = req.query['year'];
+  }
+
+  for (let i = 1; i<=12; i++){
+    let sql = '';
+    sql += ' SELECT SUM(qty * price) AS totalPrice FROM tb_order_detail';
+    sql += ' LEFT JOIN tb_order ON tb_order.id = tb_order_detail.order_id';
+    sql += ' WHERE MONTH(tb_order.pay_date) = ?';
+    sql += ' AND YEAR(tb_order.pay_date) = ?';
+
+    let params = [i, y];
+    let [rows, fields] = await con.query(sql, params);
+
+    arr.push(rows[0].totalPrice);
+  }
+
+  for (let i = yForloop - 4; i <= yForloop; i++) {
+    arrYears.push(i);
+  }
+
+  res.render('reportSalePerMonth', { arr: arr, y: y, arrYears: arrYears})
+})
+
+router.get('/reportSalePerProduct', isLogin, async (req,res)=> {
+  let con = require('./connect2');
+  let sql = 'SELECT * FROM tb_product'
+  let [rows, fields] = await con.query(sql)
+  let arr = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    let product = rows[i];
+    let barcode = product.barcode;
+    let name = product.name;
+    let id = product.id;
+
+    sql = ' SELECT SUM(qty * price) AS totalPrice FROM tb_order_detail'
+    sql += ' LEFT JOIN tb_order ON tb_order.id = tb_order_detail.order_id'
+    sql += ' WHERE tb_order_detail.product_id = ?'
+    sql += ' AND tb_order.pay_date IS NOT NULL'
+
+    let [rows2, fields2] = await con.query(sql, [id]);
+    let totalPrice = rows2[0].totalPrice;
+
+    let p = {
+      totalPrice: totalPrice,
+      barcode: barcode,
+      id: id,
+      name: name
+    }
+    arr.push(p);
+  }
+  res.render('reportSalePerProduct', { arr: arr })
 })
 
 module.exports = router;
