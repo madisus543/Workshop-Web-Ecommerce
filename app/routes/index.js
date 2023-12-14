@@ -31,18 +31,38 @@ router.use((req,res,next) => {
 })
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  let sql = 'SELECT * FROM tb_product ORDER BY id DESC';
-  con.query(sql, (err,result)=> {
-    if (err) throw err;
+router.get('/', async function(req, res, next) {
+  let con = require('./connect2')
+  let params = []
+  let sql = 'SELECT * FROM tb_product ';
 
+  if (req.query.search != undefined){
+    sql += ' WHERE name LIKE(?)'
+    params.push('%' + req.query.search + '%')
+  }
+
+  if (req.query.groupProductId != undefined){
+    sql += ' WHERE group_product_id = ?'
+    params.push(req.query.groupProductId)
+  }
+
+  sql += ' ORDER BY id DESC'
+
+  try {
+  let [products, fields] = await con.query(sql,params);
+    sql = 'SELECT * FROM tb_group_product ORDER BY name ASC'
+    let [groupProduct, fieldsGroupProduct] = await con.query(sql);
+    
     if (req.session.card == undefined) {
       req.session.card = [] ;
     }
 
-    res.render('index', { products: result } )
+    res.render('index', { products: products , groupProduct: groupProduct} )
+    } catch (e){
+      res.send('Error : ' + e)
+    }
   })
-});
+
 
 router.get('/login', (req,res) => {
   res.render("login");
@@ -705,6 +725,19 @@ router.get('/reportSalePerProduct', isLogin, async (req,res)=> {
     arr.push(p);
   }
   res.render('reportSalePerProduct', { arr: arr })
+})
+
+router.get('/trackOrder', (req,res)=> {
+  res.render('trackOrder', { orders: {} });
+})
+
+router.post('/trackOrder', (req,res)=> {
+  let sql = 'SELECT * FROM tb_order WHERE phone = ? AND pay_date IS NOT NULL'
+  let params = req.body['phone'];
+  con.query(sql, params, (err,results)=> {
+    if (err) throw err;
+    res.render('trackOrder', { orders:results})
+  })
 })
 
 module.exports = router;

@@ -1,28 +1,61 @@
 <%- include('page_header') %>
 
-<div class="container">
-    <div class="row">
-        <% products.forEach((products) => { %>
-            <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="text-center">
-                            <img src="images/<%= products.image %>" class="card-img-top" height="150px" >
-                            <div><%= products.name %></div>
-                            <div><%= products.price %></div>
-                            <a href="/addToCard/<%= products.id %>" class="btn btn-info mt-2">
-                                <span class="material-symbols-outlined material-icons">
-                                    storefront
-                                    </span>
-                                Add Card
-                            </a>
+<div class="container mt-3">
+    <form>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">ป้อนคำค้นหา</div>
+            </div>
+            <input type="text" name="search" class="form-control">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-info">
+                    <span class="material-symbols-outlined material-icons">
+                        search
+                    </span>
+                    ค้นหา
+                </button>
+            </div>
+    </form>
+</div>
+
+<div class="row mt-3">
+    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-12 mt-2">
+        <li class="list-group">
+            <% groupProduct.forEach((item) => { %>
+                <li class="list-group-item">
+                    <a href="/?groupProductId=<%= item.id %>">
+                        <%= item.name %>
+                    </a>
+                </li>
+            <% }) %>
+        </li>
+    </div>
+
+    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-12">
+        <div class="row">
+            <% products.forEach((products) => { %>
+                    <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12 mt-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <img src="images/<%= products.image %>" class="card-img-top" height="150px" width="150px" >
+                                    <div><%= products.name %></div>
+                                    <div><%= products.price %></div>
+                                    <a href="/addToCard/<%= products.id %>" class="btn btn-info mt-2">
+                                        <span class="material-symbols-outlined material-icons">
+                                            storefront
+                                            </span>
+                                        Add Card
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>    
-        <% }) %>
+                    </div>    
+            <% }) %>
+        </div>
     </div>
 </div>
+
 
 <%- include('page_footer') %>
 
