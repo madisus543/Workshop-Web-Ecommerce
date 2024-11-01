@@ -1,0 +1,60 @@
+<%- include('header') %>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="card-title h3">รับสินค้าเข้าสต๊อก</div>
+        <form method="post">
+            <div class="mt-2">
+                <label>สินค้า (Barcode)</label>
+                <input type="text" name="product_barcode" class="form-control">
+            </div>
+            <div class="mt-2">
+                <label>จำนวน</label>
+                <input type="text" name="qty" class="form-control" value="1">
+            </div>
+            <div class="mt-2">
+                <label>หมายเหตุ</label>
+                <input type="text" name="remark" class="form-control">
+            </div>
+            <div>
+                <button type="submit" class="mt-2 btn btn-info">
+                    SAVE
+                </button>
+            </div>
+        </form>
+
+        <table class="table table-bordered table-stiped mt-3">
+            <thead>
+                <tr>
+                    <td width="150px" class="text-center">ลบรายการ</td>
+                    <td class="text-center" width="100px">barcode</td>
+                    <td class="text-center" width="180px">รายการสินค้า</td>
+                    <td class="text-center" width="50px">จำนวน</td>
+                    <td class="text-center" width="140px">วันที่รับเข้าสต๊อก</td>
+                    <td class="text-center">หมายเหตุ</td>
+                </tr>
+            </thead>
+            <tbody>
+                <% stockIn.forEach((item) =>{ %>
+                <tr>
+                    <td>
+                        <a class="btn btn-danger" href="/deleteImportToStock/<%= item.id %>" onclick="return confirm('Are you sure??')">
+                            <span class="material-symbols-outlined material-icons">
+                                delete_sweep
+                                </span>
+                            DELETE
+                        </a>
+                    </td>
+                    <td class="text-center"><%= item.barcode %></td>
+                    <td class="text-center"><%= item.name %></td>
+                    <td class="text-center"><%= item.qty %></td>
+                    <td class="text-center"><%= dayjs(item.create_date).format(dayFormat) %></td>
+                    <td class="text-center"><%= item.remark %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('footer') %>
