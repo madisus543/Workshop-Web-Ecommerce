@@ -1,4 +1,5 @@
 let express = require('express');
+require('dotenv').config()
 let router = express.Router();
 let formidable = require('formidable');
 let fs = require('fs');
