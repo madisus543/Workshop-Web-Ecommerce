@@ -31,3 +31,5 @@ npm install mysql2
 
 #install numeral
 npm install numeral
+
+#Run Docker Please edit .env file
